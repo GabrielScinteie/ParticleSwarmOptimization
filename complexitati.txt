@@ -1,3 +1,5 @@
+# Dimensiunile problemei: g, p, d
+
 import random
 from copy import copy
 
@@ -15,7 +17,7 @@ inputLowerLimits = [-100] * inputDimension  # Limita superioara a domeniului de 
 inputUpperLimits = [100] * inputDimension  # Limita inferioara a domeniului de cautare
 iterationMax = 100  # Numarul maxim de iteratii
 
-# Complexitate : O(1+x*3)
+# Complexitate : O(1+d*3)
 # Functie obiectiv
 def f(x):
     sum = 0
@@ -26,7 +28,7 @@ def f(x):
 
 # Structuri de date
 
-#O(d + d + d + d +d) = O(5*d)
+#O(d + 1 + d * 4 + d + d * 3 + d) = O(9*d)
 class Particle:
     def __init__(self):
         self.position = [random.uniform(inputLowerLimits[i], inputUpperLimits[i]) for i in
@@ -46,7 +48,7 @@ O(2)
 def limit(value, minim, maxim):
     return min(max(value, minim), maxim)
 
-O(p * 5d)
+O(p * 9d)
 def initializeSwarm():
     return [Particle() for _ in range(noParticles)]
 
@@ -54,10 +56,10 @@ def initializeSwarm():
 ## Algoritm
 
 if __name__ == "__main__":
-    swarm = initializeSwarm()                                                                                   # O(p*5d)
-    socialOptim = min(list(map(lambda x: x.position, swarm)), key=f)                                            # O(p*5d+1+x*3)
-                                                                                                                # vazut ce face limit                    ^
-    for iteration in range(iterationMax):                                                                       # O( g * len(swarn) * [3 + d * 2 + (1+particle.position*3)] + 2 + 2d )
+    swarm = initializeSwarm()                                                                                   # O(p * 9d)
+    socialOptim = min(list(map(lambda x: x.position, swarm)), key=f)                                            # O(p * 9d + 1 + d * 3)
+                                                                                                                # vazut ce face limit
+    for iteration in range(iterationMax):                                                                       # O(g * p * [3 + d * 2 + (1 + d * 3)] + 2 + 2d)
         for index in range(len(swarm)):
             r1 = random.random()
             r2 = random.random()
@@ -83,5 +85,7 @@ if __name__ == "__main__":
                     socialOptim = copy(particle.position)
 
     # print(f(min(list(map(lambda x: x.position, swarm)), key=f))
-    print(socialOptim, end=" => ")                                                                              #O(p*5d + p*5d+1+x*3 + g* len(swarn) * [3 + d * 2 + (1+particle.position*3)] + 2 + 2d )
-    print(f(socialOptim))                                                                                       #O(p*d + g*p) ? credem sau O(g*p)
+    print(socialOptim, end=" => ")
+    print(f(socialOptim))
+
+    # O(g * p * [3 + d * 2 + (1 + d * 3)] + 2 + 2d) => Complexitate finala: 0(g * p * d)
