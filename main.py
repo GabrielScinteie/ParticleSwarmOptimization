@@ -1,63 +1,58 @@
 import random
 from copy import copy
-
 # La asignarea listelor si a obiectelor se va folosi copy
 
-# Parametrii
+# # Parametrii
+#
+# w = 0.4  # Inertia
+# c1 = 1  # Coeficient incredere in sine
+# c2 = 2  # Coeficient incredere in vecini
+# noParticles = 30  # Numarul particule
+# iterationMax = 100  # Numarul maxim de iteratii
+#
+# # Functie obiectiv
+# def f(x):
+#     sum = 0
+#     for elem in x:
+#         sum += elem * elem
+#     return sum
 
-w = 0.7  # Inertia
-c1 = 2  # Coeficient incredere in sine
-c2 = 2  # Coeficient incredere in vecini
-alfa = 0.2  # Coeficient viteza maxima
-noParticles = 30  # Numarul particule
-inputDimension = 5  # Numarul de parametrii de intrare ai functiei obiectiv
-inputLowerLimits = [-100] * inputDimension  # Limita superioara a domeniului de cautare
-inputUpperLimits = [100] * inputDimension  # Limita inferioara a domeniului de cautare
-iterationMax = 100  # Numarul maxim de iteratii
+def particleSwarmOptimization(f, noIterations, noParticles, w, c1, c2):
+    # Constante
 
+    inputDimension = 5  # Numarul de parametrii de intrare ai functiei obiectiv
+    inputLowerLimits = [-100] * inputDimension  # Limita superioara a domeniului de cautare
+    inputUpperLimits = [100] * inputDimension  # Limita inferioara a domeniului de cautare
+    alfa = 0.2  # Coeficient viteza maxima
 
-# Functie obiectiv
-def f(x):
-    sum = 0
-    for elem in x:
-        sum += elem * elem
-    return sum
+    # Structuri de date
 
+    class Particle:
+        def __init__(self):
+            self.position = [random.uniform(inputLowerLimits[i], inputUpperLimits[i]) for i in
+                             range(inputDimension)]  # Setam pozitia initiala a particulei
+            self.cost = f(copy(self.position))  # Setam valoarea functiei pentru particula
+            self.speed = [0 for _ in range(inputDimension)]
+            # self.speed = [round(0.05 * random.uniform(inputLowerLimits[i], inputUpperLimits[i]), 3) for i in
+            #               range(inputDimension)]  # Setam viteza pe fiecare dimensiune
+            self.maxSpeeds = [alfa * (inputUpperLimits[i] - inputLowerLimits[i]) for i in
+                              range(inputDimension)]  # Setam viteza maxima pe fiecare dimensiune
+            self.personalOptim = copy(self.position)
 
-# Structuri de date
+    # Functii utile
 
+    def limit(value, minim, maxim):
+        return min(max(value, minim), maxim)
 
-class Particle:
-    def __init__(self):
-        self.position = [random.uniform(inputLowerLimits[i], inputUpperLimits[i]) for i in
-                         range(inputDimension)]  # Setam pozitia initiala a particulei
-        self.cost = f(copy(self.position))  # Setam valoarea functiei pentru particula
-        self.speed = [0 for _ in range(inputDimension)]
-        # self.speed = [round(0.05 * random.uniform(inputLowerLimits[i], inputUpperLimits[i]), 3) for i in
-        #               range(inputDimension)]  # Setam viteza pe fiecare dimensiune
-        self.maxSpeeds = [alfa * (inputUpperLimits[i] - inputLowerLimits[i]) for i in
-                          range(inputDimension)]  # Setam viteza maxima pe fiecare dimensiune
-        self.personalOptim = copy(self.position)
+    def initializeSwarm():
+        return [Particle() for _ in range(noParticles)]
 
+    ## Algoritm
 
-# Functii utile
-
-
-def limit(value, minim, maxim):
-    return min(max(value, minim), maxim)
-
-
-def initializeSwarm():
-    return [Particle() for _ in range(noParticles)]
-
-
-## Algoritm
-
-if __name__ == "__main__":
     swarm = initializeSwarm()
     socialOptim = min(list(map(lambda x: x.position, swarm)), key=f)
 
-    for iteration in range(iterationMax):
+    for iteration in range(noIterations):
         for index in range(len(swarm)):
             r1 = random.random()
             r2 = random.random()
@@ -82,6 +77,12 @@ if __name__ == "__main__":
                 if particle.cost < f(socialOptim):
                     socialOptim = copy(particle.position)
 
-    # print(f(min(list(map(lambda x: x.position, swarm)), key=f))
-    print(socialOptim, end=" => ")
-    print(f(socialOptim))
+    # socialOptim = f(min(list(map(lambda x: x.position, swarm)), key=f))
+    return socialOptim, f(socialOptim)
+
+
+if __name__ == "__main__":
+    pass
+    # print(particleSwarmOptimization(f, noIterations,noParticles, w, c1, c2))
+
+
