@@ -1,34 +1,11 @@
 import random
+from input import *
 from copy import copy
+from math import sqrt
+from enum import Enum
 # La asignarea listelor si a obiectelor se va folosi copy
 
-# Parametrii
-from math import sqrt
 
-w = 0.4  # Inertia
-c1 = 1  # Coeficient incredere in sine
-c2 = 2  # Coeficient incredere in vecini
-noParticles = 30  # Numarul particule
-noIterations = 100  # Numarul maxim de iteratii
-
-# Constante
-
-inputDimension = 5  # Numarul de parametrii de intrare ai functiei obiectiv
-inputLowerLimits = [-100] * inputDimension  # Limita superioara a domeniului de cautare
-inputUpperLimits = [100] * inputDimension  # Limita inferioara a domeniului de cautare
-alfa = 0.1  # Coeficient viteza maxima
-
-
-# Functie obiectiv
-def f(x):
-    sum = 0
-    for elem in x:
-        sum += elem * elem
-    return sum
-
-
-
-# Structuri de date
 class Particle:
     def __init__(self):
         self.position = [random.uniform(inputLowerLimits[i], inputUpperLimits[i]) for i in
@@ -41,9 +18,13 @@ class Particle:
             range(inputDimension)]  # Setam viteza maxima pe fiecare dimensiune
         self.personalOptim = copy(self.position)
 
+
+class Type(Enum):
+    GeographicalBest = 0
+    SocialBest = 1
+
+
 # Functii utile
-
-
 def limit(value, minim, maxim):
     return min(max(value, minim), maxim)
 
@@ -65,6 +46,18 @@ def getOptimalOfGeographicalNeighbours(particle, swarm, r):
         if euclidianDistance(particle, swarm[index]) < r:
             if swarm[index].cost < optimal.cost:
                 optimal = copy(swarm[index])
+
+    return optimal
+
+
+def getOptimalOfSocialNeighbours(particleIndex, swarm, noFriends):
+    startingIndex = max(0, particleIndex - noFriends)
+    endingIndex = min(len(swarm) - 1, particleIndex + noFriends)
+
+    optimal = copy(swarm[startingIndex])
+    for index in range(startingIndex, endingIndex + 1):
+        if swarm[index].cost < optimal.cost:
+            optimal = copy(swarm[index])
 
     return optimal
 
@@ -101,20 +94,24 @@ def particleSwarmOptimizationGlobalBest(f, noIterations, noParticles, w, c1, c2)
     return socialOptim, f(socialOptim)
 
 
-def particleSwarmOptimizationGeographicalBest(f, noIterations, noParticles, w, c1, c2, r):
-    # r ne spune cat de mare este raza vecinatatii unei particule
+def particleSwarmOptimizationLocalBest(f, noIterations, noParticles, w, c1, c2, type, parameter):
+    # Daca type este GeographicalBest, atunci parameter are semnificatia urmatoare:
+    #   ne spune cat de mare este raza vecinatatii unei particule
+    # Daca type este SocialBest, atunci parameter are semnificatia urmatoare:
+    #   ne spune care este vecinatatea unei particule cu indexul i: [index - parameter, index + noFriends]
 
     swarm = initializeSwarm(noParticles)
-    socialOptim = min(list(map(lambda x: x.position, swarm)), key=f)
 
     for iteration in range(noIterations):
         for index in range(len(swarm)):
             r1 = random.random()
             r2 = random.random()
 
-            # particle este o referinta catre swarm[index] deoarece in Python obiectele se transmit prin referinta
             particle = swarm[index]
-            socialOptim = getOptimalOfGeographicalNeighbours(particle, swarm, r).position
+            if type == Type.SocialBest:
+                socialOptim = getOptimalOfSocialNeighbours(index, swarm, r).position
+            else:
+                socialOptim = getOptimalOfGeographicalNeighbours(particle, swarm, r).position
 
             for i in range(inputDimension):
                 particle.speed[i] = limit(
@@ -131,12 +128,15 @@ def particleSwarmOptimizationGeographicalBest(f, noIterations, noParticles, w, c
             if f(particle.position) < f(particle.personalOptim):
                 particle.personalOptim = copy(particle.position)
 
-    socialOptim = min(list(map(lambda x: x.position, swarm)), key=f)
+    socialOptim = min(list(map(lambda x: x.personalOptim, swarm)), key=f)
     return socialOptim, f(socialOptim)
 
 
 if __name__ == "__main__":
     print(particleSwarmOptimizationGlobalBest(f, noIterations, noParticles, w, c1, c2))
+
     r = (inputUpperLimits[0] - inputLowerLimits[0]) * sqrt(inputDimension) / 2 # jumatate lungimea diagonalei hipercubului
-    print(particleSwarmOptimizationGeographicalBest(f, noIterations, noParticles, w, c1, c2, r))
+    noFriends = noParticles / 2 # jumatate din numarul de particule
+    print(particleSwarmOptimizationLocalBest(f, noIterations, noParticles, w, c1, c2, Type.GeographicalBest, r))
+    print(particleSwarmOptimizationLocalBest(f, noIterations, noParticles, w, c1, c2, Type.SocialBest, noFriends))
 
