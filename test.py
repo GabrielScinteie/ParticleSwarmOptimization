@@ -1,4 +1,4 @@
-from main import particleSwarmOptimization
+from main import particleSwarmOptimizationGlobalBest
 import unittest
 
 # Functie obiectiv
@@ -25,7 +25,7 @@ def test(w, c1, c2, noParticles, iterationMax, precision):
     else:
         iterationMaxStr = " " + str(iterationMax)
 
-    sol = particleSwarmOptimization(f, iterationMax, noParticles, w, c1, c2)[1]
+    sol = particleSwarmOptimizationGlobalBest(f, iterationMax, noParticles, w, c1, c2)[1]
     try:
         assert sol < precision
         straux = "Succes: "
