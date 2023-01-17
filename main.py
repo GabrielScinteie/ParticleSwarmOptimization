@@ -6,8 +6,49 @@ from copy import copy, deepcopy
 from math import sqrt
 from enum import Enum
 import matplotlib.pyplot as plt
+from numpy import arange
 
-# !!! La asignarea listelor si a obiectelor se va folosi copy
+
+
+def readInput():
+    file = open("parametrii.txt", "r")
+    parametrii_vector = file.read()
+    parametrii_vector = parametrii_vector.split("\n")
+
+    w = float(parametrii_vector[0]) # Inertia
+    c1 = float(parametrii_vector[1]) # Coeficient incredere in sine
+    c2 = float(parametrii_vector[2]) # Coeficient incredere in vecini
+    noParticles = int(parametrii_vector[3]) # Numarul de particule
+    noIterations = int(parametrii_vector[4]) # Numar de iteratii
+    r = float(parametrii_vector[5]) # Raza vecinatatii geografice
+    noFriends = int(parametrii_vector[6]) # Numarul de prieteni pt vecinatati sociale
+
+    return w, c1, c2, noParticles, noIterations, r, noFriends
+
+# Constantele problemei
+
+
+repulsivePoints = [(-50, -50, 1), (-50, 50, 1), (50, 50, 1), (50, -50, 1), (0, 50, 1), (50, 0, 1), (-50, 0, 1), (0, -50, 1)]
+                  # (-10, -10, 1), (-10, 10, 1), (10, 10, 1), (10, -10, 1)]
+attractivePoints = [(-75, -75, 2), (-75, 75, 2), (75, 75, 2), (75, -75, 2), (0, 0, 3)]
+
+inputDimension = 2  # Numarul de parametrii de intrare ai functiei obiectiv
+inputLowerLimits = [-100] * inputDimension  # Limita superioara a domeniului de cautare
+inputUpperLimits = [100] * inputDimension  # Limita inferioara a domeniului de cautare
+alfa = 0.1  # Coeficient viteza maxima
+
+# Parametrii animatie si afisare
+animation = 1
+deltaT = 0.1  # Timpul dintre frame-urile animatiilor
+numberDecimals = 2  # Numarul de zecimale ale rezultatelor
+
+# Variabile globale
+
+attractiveArray_x = list(map(lambda x: x[0], attractivePoints))
+attractiveArray_y = list(map(lambda x: x[1], attractivePoints))
+
+repulsiveArray_x = list(map(lambda x: x[0], repulsivePoints))
+repulsiveArray_y = list(map(lambda x: x[1], repulsivePoints))
 
 
 class Particle:
@@ -30,15 +71,6 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
-
-# Constante
-
-attractiveArray_x = list(map(lambda x: x[0], attractivePoints))
-attractiveArray_y = list(map(lambda x: x[1], attractivePoints))
-
-repulsiveArray_x = list(map(lambda x: x[0], repulsivePoints))
-repulsiveArray_y = list(map(lambda x: x[1], repulsivePoints))
 
 
 # Functii utile
@@ -80,7 +112,6 @@ def f(point):
     return value
 
 
-
 def getOptimalOfGeographicalNeighbours(particle, swarm, r):
     optimal = copy(particle)
     for index in range(len(swarm)):
@@ -107,7 +138,6 @@ def particleSwarmOptimizationGlobalBest(f, swarm, noIterations, noParticles, w, 
 
     for iteration in range(noIterations):
         print(iteration)
-
         if animation == 1:
             x_positions = list(map(lambda x: x.position[0], swarm))
             y_positions = list(map(lambda x: x.position[1], swarm))
@@ -161,7 +191,6 @@ def particleSwarmOptimizationLocalBest(f, swarm, noIterations, noParticles, w, c
 
     for iteration in range(noIterations):
         print(iteration)
-
         if animation == 1:
             x_positions = list(map(lambda x: x.position[0], swarm))
             y_positions = list(map(lambda x: x.position[1], swarm))
@@ -209,13 +238,14 @@ def particleSwarmOptimizationLocalBest(f, swarm, noIterations, noParticles, w, c
     return socialOptim, f(socialOptim)
 
 
-if __name__ == "__main__":
+if __name__  == "__main__":
     if animation == 1:
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.set_xlim(inputLowerLimits[0], inputUpperLimits[0])
         ax.set_ylim(inputLowerLimits[1], inputUpperLimits[1])
 
+    w, c1, c2, noParticles, noIterations, r, noFriends = readInput()
     swarm = initializeSwarm(noParticles)
 
     minim1 = particleSwarmOptimizationGlobalBest(f, deepcopy(swarm), noIterations, noParticles, w, c1, c2)
@@ -229,8 +259,3 @@ if __name__ == "__main__":
     print(minim1_rounded)
     print(minim2_rounded)
     print(minim3_rounded)
-
-
-
-
-
