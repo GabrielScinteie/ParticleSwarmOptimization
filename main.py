@@ -1,9 +1,13 @@
 import random
+import time
+from IPython.display import display, clear_output
 from input import *
 from copy import copy
 from math import sqrt
 from enum import Enum
-# La asignarea listelor si a obiectelor se va folosi copy
+import matplotlib.pyplot as plt
+
+# !!! La asignarea listelor si a obiectelor se va folosi copy
 
 
 class Particle:
@@ -12,11 +16,26 @@ class Particle:
             range(inputDimension)]  # Setam pozitia initiala a particulei
         self.cost = f(copy(self.position))  # Setam valoarea functiei pentru particula
         self.speed = [0 for _ in range(inputDimension)]
-        # self.speed = [round(0.05 * random.uniform(inputLowerLimits[i], inputUpperLimits[i]), 3) for i in
-        #               range(inputDimension)]  # Setam viteza pe fiecare dimensiune
         self.maxSpeeds = [alfa * (inputUpperLimits[i] - inputLowerLimits[i]) for i in
             range(inputDimension)]  # Setam viteza maxima pe fiecare dimensiune
         self.personalOptim = copy(self.position)
+
+class Square:
+    def __init__(self, x1, y1, x2, y2):
+        self.length = x2 - x1
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+
+    def isPointInside(self, x, y):
+        if self.x1 < x and self.x2 > x:
+            if self.y1 < y and self.y2 > y:
+                return True
+        return False
+
+
+camera = Square(inputLowerLimits[0], inputLowerLimits[1], inputUpperLimits[0], inputUpperLimits[1])
 
 
 class Type(Enum):
@@ -38,6 +57,16 @@ def euclidianDistance(particle1, particle2):
     for index in range(inputDimension):
         distance += (particle1.position[index] - particle2.position[index]) ** 2
     return sqrt(distance)
+
+
+def checkAllPointsInCamera(swarm, rectangle):
+    for particle in swarm:
+        x = particle.position[0]
+        y = particle.position[1]
+        if not rectangle.isPointInside(x, y):
+            return False
+
+    return True
 
 
 def getOptimalOfGeographicalNeighbours(particle, swarm, r):
@@ -63,10 +92,31 @@ def getOptimalOfSocialNeighbours(particleIndex, swarm, noFriends):
 
 
 def particleSwarmOptimizationGlobalBest(f, noIterations, noParticles, w, c1, c2):
+    global camera
+
     swarm = initializeSwarm(noParticles)
     socialOptim = min(list(map(lambda x: x.position, swarm)), key=f)
 
     for iteration in range(noIterations):
+        newCamera = Square(camera.x1 / 10, camera.y1 / 10, camera.x2 / 10, camera.y2 / 10)
+        if checkAllPointsInCamera(swarm, newCamera) == True:
+            camera = copy(newCamera)
+        print(iteration)
+        x_positions = list(map(lambda x: x.position[0], swarm))
+        y_positions = list(map(lambda x: x.position[1], swarm))
+
+        ax.clear()
+        ax.scatter(x_positions, y_positions)
+        # ax.set_xlim(inputLowerLimits[0], inputUpperLimits[0])
+        # ax.set_ylim(inputLowerLimits[1], inputUpperLimits[1])
+        ax.set_xlim(camera.x1, camera.x2)
+        ax.set_ylim(camera.y1, camera.y2)
+
+        display(fig)
+        clear_output(wait=True)
+        plt.pause(0.1)
+
+        time.sleep(0.1)
         for index in range(len(swarm)):
             r1 = random.random()
             r2 = random.random()
@@ -91,6 +141,7 @@ def particleSwarmOptimizationGlobalBest(f, noIterations, noParticles, w, c1, c2)
                 if particle.cost < f(socialOptim):
                     socialOptim = copy(particle.position)
 
+
     return socialOptim, f(socialOptim)
 
 
@@ -103,15 +154,31 @@ def particleSwarmOptimizationLocalBest(f, noIterations, noParticles, w, c1, c2, 
     swarm = initializeSwarm(noParticles)
 
     for iteration in range(noIterations):
+        print(iteration)
+
+        x_positions = list(map(lambda x: x.position[0], swarm))
+        y_positions = list(map(lambda x: x.position[1], swarm))
+
+        ax.clear()
+        ax.scatter(x_positions, y_positions)
+        ax.set_xlim(inputLowerLimits[0], inputUpperLimits[0])
+
+        ax.set_ylim(inputLowerLimits[1], inputUpperLimits[1])
+        display(fig)
+        clear_output(wait=True)
+        plt.pause(0.1)
+
+        time.sleep(0.2)
+        # screen.fill((255, 255, 255))
         for index in range(len(swarm)):
             r1 = random.random()
             r2 = random.random()
 
             particle = swarm[index]
             if type == Type.SocialBest:
-                socialOptim = getOptimalOfSocialNeighbours(index, swarm, r).position
+                socialOptim = getOptimalOfSocialNeighbours(index, swarm, parameter).position
             else:
-                socialOptim = getOptimalOfGeographicalNeighbours(particle, swarm, r).position
+                socialOptim = getOptimalOfGeographicalNeighbours(particle, swarm, parameter).position
 
             for i in range(inputDimension):
                 particle.speed[i] = limit(
@@ -133,10 +200,17 @@ def particleSwarmOptimizationLocalBest(f, noIterations, noParticles, w, c1, c2, 
 
 
 if __name__ == "__main__":
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlim(inputLowerLimits[0], inputUpperLimits[0])
+    ax.set_ylim(inputLowerLimits[1], inputUpperLimits[1])
     print(particleSwarmOptimizationGlobalBest(f, noIterations, noParticles, w, c1, c2))
-
-    r = (inputUpperLimits[0] - inputLowerLimits[0]) * sqrt(inputDimension) / 2 # jumatate lungimea diagonalei hipercubului
-    noFriends = noParticles / 2 # jumatate din numarul de particule
+    r = (inputUpperLimits[0] - inputLowerLimits[0]) * sqrt(inputDimension) / 4 # jumatate lungimea diagonalei hipercubului
+    noFriends = noParticles // 2 # jumatate din numarul de particule
     print(particleSwarmOptimizationLocalBest(f, noIterations, noParticles, w, c1, c2, Type.GeographicalBest, r))
     print(particleSwarmOptimizationLocalBest(f, noIterations, noParticles, w, c1, c2, Type.SocialBest, noFriends))
+
+
+
+
 

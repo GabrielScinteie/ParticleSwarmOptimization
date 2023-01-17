@@ -6,7 +6,7 @@ c2 = 2  # Coeficient incredere in vecini
 noParticles = 30  # Numarul particule
 noIterations = 100  # Numarul maxim de iteratii
 
-inputDimension = 5  # Numarul de parametrii de intrare ai functiei obiectiv
+inputDimension = 2  # Numarul de parametrii de intrare ai functiei obiectiv
 inputLowerLimits = [-100] * inputDimension  # Limita superioara a domeniului de cautare
 inputUpperLimits = [100] * inputDimension  # Limita inferioara a domeniului de cautare
 alfa = 0.1  # Coeficient viteza maxima
