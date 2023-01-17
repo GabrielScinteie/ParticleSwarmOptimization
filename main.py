@@ -1,13 +1,10 @@
 import random
 import time
 from IPython.display import display, clear_output
-from input import *
 from copy import copy, deepcopy
 from math import sqrt
 from enum import Enum
 import matplotlib.pyplot as plt
-from numpy import arange
-
 
 
 def readInput():
@@ -15,15 +12,16 @@ def readInput():
     parametrii_vector = file.read()
     parametrii_vector = parametrii_vector.split("\n")
 
-    w = float(parametrii_vector[0]) # Inertia
-    c1 = float(parametrii_vector[1]) # Coeficient incredere in sine
-    c2 = float(parametrii_vector[2]) # Coeficient incredere in vecini
-    noParticles = int(parametrii_vector[3]) # Numarul de particule
-    noIterations = int(parametrii_vector[4]) # Numar de iteratii
-    r = float(parametrii_vector[5]) # Raza vecinatatii geografice
-    noFriends = int(parametrii_vector[6]) # Numarul de prieteni pt vecinatati sociale
+    w = float(parametrii_vector[0])  # Inertia
+    c1 = float(parametrii_vector[1])  # Coeficient incredere in sine
+    c2 = float(parametrii_vector[2])  # Coeficient incredere in vecini
+    noParticles = int(parametrii_vector[3])  # Numarul de particule
+    noIterations = int(parametrii_vector[4])  # Numar de iteratii
+    r = float(parametrii_vector[5])  # Raza vecinatatii geografice
+    noFriends = int(parametrii_vector[6])  # Numarul de prieteni pt vecinatati sociale
 
     return w, c1, c2, noParticles, noIterations, r, noFriends
+
 
 # Constantele problemei
 
