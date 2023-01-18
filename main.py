@@ -27,23 +27,22 @@ def readInput():
 # Constantele problemei
 
 
-
 inputDimension = 2  # Numarul de parametrii de intrare ai functiei obiectiv
 inputLowerLimits = [-100] * inputDimension  # Limita superioara a domeniului de cautare
 inputUpperLimits = [100] * inputDimension  # Limita inferioara a domeniului de cautare
-alfa = 0.1  # Coeficient viteza maxima
+alfa = 0.05  # Coeficient viteza maxima
 
 # Parametrii animatie si afisare
 animation = 1
-deltaT = 0.1  # Timpul dintre frame-urile animatiilor
+deltaT = 0.01  # Timpul dintre frame-urile animatiilor
 numberDecimals = 2  # Numarul de zecimale ale rezultatelor
 
 # Variabile globale
 
 w, c1, c2, noParticles, noIterations, r, noFriends, isRand = readInput()
 
-repulsivePoints = [(-50, -50, 1), (-50, 50, 1), (50, 50, 1), (50, -50, 1), (0, 50, 1), (50, 0, 1), (-50, 0, 1), (0, -50, 1)]
-                  # (-10, -10, 1), (-10, 10, 1), (10, 10, 1), (10, -10, 1)]
+repulsivePoints = [(-50, -50, 1), (-50, 50, 1), (50, 50, 1), (50, -50, 1)]
+                   #(0, 50, 1), (50, 0, 1), (-50, 0, 1), (0, -50, 1)]
 attractivePoints = [(-75, -75, 2), (-75, 75, 2), (75, 75, 2), (75, -75, 2), (0, 0, 3)]
 
 if isRand == 1:
@@ -146,9 +145,9 @@ def particleSwarmOptimizationGlobalBest(f, swarm, noIterations, noParticles, w, 
             y_positions = list(map(lambda x: x.position[1], swarm))
 
             ax.clear()
-            ax.scatter(x_positions, y_positions)
             ax.scatter(attractiveArray_x, attractiveArray_y, c="green")
             ax.scatter(repulsiveArray_x, repulsiveArray_y, c="red")
+            ax.scatter(x_positions, y_positions)
             ax.set_xlim(inputLowerLimits[0], inputUpperLimits[0])
             ax.set_ylim(inputLowerLimits[1], inputUpperLimits[1])
 
@@ -254,9 +253,9 @@ if __name__  == "__main__":
     minim2 = particleSwarmOptimizationLocalBest(f, deepcopy(swarm), noIterations, noParticles, w, c1, c2, Type.GeographicalBest, r)
     minim3 = particleSwarmOptimizationLocalBest(f, deepcopy(swarm), noIterations, noParticles, w, c1, c2, Type.SocialBest, noFriends)
 
-    minim1_rounded = ([round(minim1[0][0], numberDecimals), round(minim1[0][1], numberDecimals)], round(minim1[1], numberDecimals))
-    minim2_rounded = ([round(minim2[0][0], numberDecimals), round(minim2[0][1], numberDecimals)], round(minim1[1], numberDecimals))
-    minim3_rounded = ([round(minim3[0][0], numberDecimals), round(minim3[0][1], numberDecimals)], round(minim3[1], numberDecimals))
+    minim1_rounded = ([round(minim1[0][0], numberDecimals), round(minim1[0][1], numberDecimals)], minim1[1])
+    minim2_rounded = ([round(minim2[0][0], numberDecimals), round(minim2[0][1], numberDecimals)], minim2[1])
+    minim3_rounded = ([round(minim3[0][0], numberDecimals), round(minim3[0][1], numberDecimals)], minim3[1])
 
     print(minim1_rounded)
     print(minim2_rounded)
